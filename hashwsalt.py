@@ -5,9 +5,7 @@ from pymongo import MongoClient
 import ssl
 
 # password = 'password123'
-# Shaan says hi
-# Shaan says hi 2
-# Shaan says hi 3
+
 
 def get_vault_key(master_password, username):
 
