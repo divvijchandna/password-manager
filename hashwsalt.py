@@ -4,8 +4,9 @@ from getpass import getpass
 from pymongo import MongoClient
 import ssl
 
+
+# This is Shaan_1 branch
 # password = 'password123'
-# Shaan says hi
 
 def get_vault_key(master_password, username):
 
