@@ -5,8 +5,9 @@ from pymongo import MongoClient
 import ssl
 
 # This is main branch
-# password = 'password123'
-
+# Adding Encrypted vault
+# shaan : qwerty
+# divvij: 12345
 
 def get_vault_key(master_password, username):
 
@@ -21,8 +22,9 @@ def get_vault_key(master_password, username):
         256
     )
 
-    vault_key = salt + key
-    return vault_key
+    vault_key_wsalt = salt + key
+    return vault_key_wsalt
+
 
 def get_auth_hash(vault_key, salt, master_password):
     
@@ -35,13 +37,13 @@ def get_auth_hash(vault_key, salt, master_password):
         100000 # It is recommended to use at least 100,000 iterations of SHA-256 
     )
 
-    auth_hash = salt + key
-    return auth_hash
+    auth_hash_wsalt = salt + key
+    return auth_hash_wsalt
 
-def check_password(password_to_check, username, auth_hash):
+def check_auth_hash(password_to_check, username, auth_hash_wsalt):
 
-    salt_from_storage = auth_hash[:32] # 32 is the length of the salt
-    key_from_storage = auth_hash[32:]
+    salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
+    key_from_storage = auth_hash_wsalt[32:]
 
     # Use the exact same setup you used to generate the key, but this time put in the password to check
     vault_key = hashlib.pbkdf2_hmac(
@@ -65,21 +67,21 @@ def check_password(password_to_check, username, auth_hash):
         print('Password is incorrect')
 
 
-def store_auth_hash(username, auth_hash):
+def store_auth_hash(username, auth_hash_wsalt):
 
-    uri = "mongodb+srv://divvij:.cabbDvp9V7tTy8@cluster0.tz0g1.mongodb.net/passwordManager?retryWrites=true&w=majority"
+    uri = "mongodb+srv://shaandivvij:divvijshaan@cluster0.kvz4b.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     client = MongoClient(uri, ssl_cert_reqs=ssl.CERT_NONE)
 
     db = client.passwordManager
     collection = db.masterPasswords
 
-    post = {"username": username, "auth_hash": auth_hash}
+    post = {"username": username, "auth_hash": auth_hash_wsalt}
 
     collection.insert_one(post)
 
 def retrieve_auth_hash(username):
 
-    uri = "mongodb+srv://divvij:.cabbDvp9V7tTy8@cluster0.tz0g1.mongodb.net/passwordManager?retryWrites=true&w=majority"
+    uri = "mongodb+srv://shaandivvij:divvijshaan@cluster0.kvz4b.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     client = MongoClient(uri, ssl_cert_reqs=ssl.CERT_NONE)
 
     db = client.passwordManager
@@ -96,23 +98,22 @@ if option == 'a':
     username = input("Username: ")
     password = getpass()
 
-    vault_key = get_vault_key(password, username)
-    salt = vault_key[:32] # 32 is the length of the salt
-    vault_key = vault_key[32:]
-    auth_hash = get_auth_hash(vault_key, salt, password)
+    vault_key_wsalt = get_vault_key(password, username)
+    salt = vault_key_wsalt[:32] # 32 is the length of the salt
+    vault_key = vault_key_wsalt[32:]
+    auth_hash_wsalt = get_auth_hash(vault_key, salt, password)
 
-    store_auth_hash(username, auth_hash)
+    store_auth_hash(username, auth_hash_wsalt)
 
 elif option == 'c':
 
     username = input("Username: ")
     password = getpass()
 
-    auth_hash = retrieve_auth_hash(username)
+    auth_hash_wsalt = retrieve_auth_hash(username)
 
-    check_password(password, username, auth_hash)
+    check_auth_hash(password, username, auth_hash_wsalt)
 
 
 
-# check_password('blahblah', hash_storage)
 
