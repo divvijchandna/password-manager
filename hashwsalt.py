@@ -75,7 +75,7 @@ def store_auth_hash(username, auth_hash):
 
     collection.insert_one(post)
 
-def retrieve_password(username):
+def retrieve_auth_hash(username):
 
     uri = "mongodb+srv://divvij:.cabbDvp9V7tTy8@cluster0.tz0g1.mongodb.net/passwordManager?retryWrites=true&w=majority"
     client = MongoClient(uri, ssl_cert_reqs=ssl.CERT_NONE)
@@ -106,7 +106,7 @@ elif option == 'c':
     username = input("Username: ")
     password = getpass()
 
-    auth_hash = retrieve_password(username)
+    auth_hash = retrieve_auth_hash(username)
 
     check_password(password, username, auth_hash)
 
