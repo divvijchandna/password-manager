@@ -1,5 +1,5 @@
 
-# Code from https://stackoverflow.com/questions/12524994/encrypt-decrypt-using-pycrypto-aes-256
+# Code from https://www.youtube.com/watch?v=GYCVmMCRmTM
 
 import base64
 import hashlib
