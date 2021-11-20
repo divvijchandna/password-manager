@@ -12,4 +12,27 @@ from secrets import token_bytes
 key = token_bytes(32)
 
 def encrypt(msg):
-    cipher = AES.new(key, AES_MODE_AEX)
+    cipher = AES.new(key, AES.MODE_EAX)
+    nonce = cipher.nonce
+    ciphertext, tag = cipher.encrypt_and_digest(msg.encode('ascii'))
+    return nonce, ciphertext, tag
+
+def decrypt(nonce, ciphertext, tag):
+    cipher = AES.new(key, AES.MODE_EAX, nonce = nonce)
+    plaintext = cipher.decrypt(ciphertext)
+    try:
+        cipher.verify(tag)
+        return plaintext.decode('ascii')
+    except:
+        return False
+
+msg = input("Enter plaintext: ")
+nonce, ciphertext, tag = encrypt(msg)
+print('Ciphertext is: ', ciphertext)
+
+plaintext = decrypt(nonce, ciphertext, tag)
+if not plaintext:
+    print('Message is corrupted')
+else:
+    print('Plaintext: ', plaintext)
+
