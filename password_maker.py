@@ -38,4 +38,4 @@ password = ""
 for x in temp_pass_list:
         password = password + x
 
-print('Password is: ', password)
+print('Password is : ', password)
