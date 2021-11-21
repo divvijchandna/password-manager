@@ -44,4 +44,10 @@ if not plaintext:
     print('Message is corrupted')
 else:
     print('Plaintext: ', plaintext)
+    print('key type:', type(key))
+    print('key size: ', len(key))
+    print('nonce type:', type(nonce))
+    print('nonce size: ', len(nonce))
+    print('tag type:', type(tag))
+    print('tag size: ', len(tag))
 
