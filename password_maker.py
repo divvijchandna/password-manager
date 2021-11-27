@@ -17,8 +17,8 @@ def make_password(password_len):
                         'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
                         'Z']
 
-    symbols = ['@', '#', '$', '%', '=', ':', '?', '.', '/', '|', '~', '>', 
-            '*', '(', ')', '<']
+    symbols = ['@', '#', '$', '%', '=', ':', '?', '.', '/','|', '~', '>', 
+            '*', '(', ')', '<', '!', '&']
 
     combined = digits + lower_case + upper_case + symbols
 
@@ -39,7 +39,7 @@ def make_password(password_len):
     password = ""
     for x in temp_pass_list:
             password = password + x
-            
+
     return password
 
 
