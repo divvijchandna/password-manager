@@ -6,7 +6,7 @@ import ssl
 
 # This is main branch
 # Adding Encrypted vault
-# shaan : qwerty
+# shaan : qwerty 
 # divvij: 12345
 
 def get_vault_key(master_password, username):
