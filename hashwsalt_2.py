@@ -7,7 +7,6 @@ from pymongo import MongoClient
 import ssl
 
 # This is main branch
-# Adding Encrypted vault
 # shaan : qwerty 
 # divvij: 12345
 
