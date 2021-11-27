@@ -79,7 +79,7 @@ def store_auth_hash(username, auth_hash_wsalt):
 
     collection.insert_one(post)
 
-def store_record(auth_hash_wsalt, enc_record, nonce, tag):
+def store_record(username, enc_record, nonce, tag):
 
     uri = "mongodb+srv://shaandivvij:divvijshaan@cluster0.kvz4b.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     client = MongoClient(uri, ssl_cert_reqs=ssl.CERT_NONE)
@@ -87,9 +87,9 @@ def store_record(auth_hash_wsalt, enc_record, nonce, tag):
     db = client.passwordManager
     collection = db.masterPasswords
 
-    collection.update_one({"auth_hash": auth_hash_wsalt}, {"$set":{"record": enc_record}})
-    collection.update_one({"auth_hash": auth_hash_wsalt}, {"$set":{"nonce": nonce}})
-    collection.update_one({"auth_hash": auth_hash_wsalt}, {"$set":{"tag": tag}})
+    collection.update_one({"username": username}, {"$set":{"record": enc_record}})
+    collection.update_one({"username": username}, {"$set":{"nonce": nonce}})
+    collection.update_one({"username": username}, {"$set":{"tag": tag}})
 
 def retrieve_auth_hash(username):
 
@@ -103,7 +103,7 @@ def retrieve_auth_hash(username):
 
     return result[0]["auth_hash"]
 
-def retrieve_record(auth_hash_wsalt):
+def retrieve_record(username):
 
     uri = "mongodb+srv://shaandivvij:divvijshaan@cluster0.kvz4b.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     client = MongoClient(uri, ssl_cert_reqs=ssl.CERT_NONE)
@@ -111,7 +111,7 @@ def retrieve_record(auth_hash_wsalt):
     db = client.passwordManager
     collection = db.masterPasswords
 
-    result = collection.find({"auth_hash": auth_hash_wsalt})
+    result = collection.find({"username": auth_hash_wsalt})
 
     return result[0]["record"], result[0]["nonce"], result[0]["tag"]
 
@@ -159,21 +159,46 @@ elif option == 'p':
         print('Password is incorrect. Try again.')
     else:
         # vault_key_wsalt = get_vault_key(password, username)
-        record, nonce, tag = retrieve_record(auth_hash_wsalt)
-        website = input("Website name: ")
+        record, nonce, tag = retrieve_record(username)
+        website = str(input("Website name: "))
         password_length = int(input("Password length: "))
-        password_record = password_maker.make_password(password_length)
+        password_record = str(password_maker.make_password(password_length))
 
         vault_key_wsalt = get_vault_key(password, username)
         vault_key = vault_key_wsalt[32:]
         if(record == 'Empty'):
             nonce, ciphertext, tag = aes_encryption_test.encrypt(website+'||'+password_record, vault_key)
-            store_record(auth_hash_wsalt, ciphertext, nonce, tag)
+            store_record(username, ciphertext, nonce, tag)
         else:
             dec_record = aes_encryption_test.decrypt(vault_key, nonce, tag, record)
             dec_record = dec_record + '|||' + website+'||'+password_record
             nonce, ciphertext, tag = aes_encryption_test.encrypt(dec_record, vault_key)
-            store_record(auth_hash_wsalt, ciphertext, nonce, tag)
+            store_record(username, ciphertext, nonce, tag)
+
+elif option == 'v':
+
+    username = input("Username: ")
+    password = getpass()
+
+    auth_hash_wsalt = retrieve_auth_hash(username)
+
+    check = check_auth_hash(password, username, auth_hash_wsalt)
+
+    # salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
+    # key_from_storage = auth_hash_wsalt[32:]
+
+    if not check:
+        print('Password is incorrect. Try again.')
+    else:
+        # vault_key_wsalt = get_vault_key(password, username)
+        record, nonce, tag = retrieve_record(username)
+        vault_key_wsalt = get_vault_key(password, username)
+        vault_key = vault_key_wsalt[32:]
+        if(record == 'Empty'):
+            print(record)
+        else:
+            dec_record = aes_encryption_test.decrypt(vault_key, nonce, tag, record)
+            print(dec_record)
 
 
 
