@@ -129,9 +129,9 @@ def retrieve_vault_salt(username):
     return result[0]["salt_vault"]
 
 
-print("1.Add Account: a \n 2.Check if Master-Password is Correct: c \n  3.Add password to Account: ap \n 4.View all website-password pairs: v")
+print("1.Add Account: a \n2.Check if Master-Password is Correct: c \n3.Add password to Account: ap \n4.View all website-password pairs: v")
 print()
-option = input('Enter your selection')
+option = input('Enter your selection: ')
 
 if option == 'a':
 
@@ -146,6 +146,7 @@ if option == 'a':
     auth_hash_wsalt = get_auth_hash(vault_key, salt2, password)
 
     store_auth_hash(username, auth_hash_wsalt, salt1)
+    print('Done')
 
 elif option == 'c':
 
@@ -212,7 +213,8 @@ elif option == 'v':
     else:
         # vault_key_wsalt = get_vault_key(password, username)
         record, nonce, tag = retrieve_record(username)
-        vault_key_wsalt = get_vault_key(password, username)
+        salt_vault = retrieve_vault_salt(username)
+        vault_key_wsalt = get_vault_key(password, salt_vault, username)
         vault_key = vault_key_wsalt[32:]
         if(record == 'Empty'):
             print(record)
