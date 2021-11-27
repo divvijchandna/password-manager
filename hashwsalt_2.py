@@ -1,5 +1,5 @@
-import aes_encryption_test
-import password_maker
+from aes_encryption_test import *
+from password_maker import *
 import hashlib
 import os
 from getpass import getpass
@@ -129,8 +129,9 @@ def retrieve_vault_salt(username):
     return result[0]["salt_vault"]
 
 
-
-option = input("Add Account: a \n Check if Master-Password is Correct: c \n  Add password to Account: ap \n View all website-password pairs: v")
+print("1.Add Account: a \n 2.Check if Master-Password is Correct: c \n  3.Add password to Account: ap \n 4.View all website-password pairs: v")
+print()
+option = input('Enter your selection')
 
 if option == 'a':
 
@@ -144,7 +145,7 @@ if option == 'a':
     vault_key = vault_key_wsalt[32:]
     auth_hash_wsalt = get_auth_hash(vault_key, salt2, password)
 
-    store_auth_hash(username, auth_hash_wsalt, salt)
+    store_auth_hash(username, auth_hash_wsalt, salt1)
 
 elif option == 'c':
 
@@ -179,20 +180,20 @@ elif option == 'ap':
         record, nonce, tag = retrieve_record(username)
         website = str(input("Website name: "))
         password_length = int(input("Password length: "))
-        password_record = str(password_maker.make_password(password_length))
+        password_record = str(make_password(password_length))
 
         vault_salt = retrieve_vault_salt(username)
         vault_key_wsalt = get_vault_key(password, vault_salt, username)
         vault_key = vault_key_wsalt[32:]
-        
+
         if(record == 'Empty'):
-            nonce, ciphertext, tag = aes_encryption_test.encrypt(website+'||'+password_record, vault_key)
+            nonce, ciphertext, tag = encrypt(website+'||'+password_record, vault_key)
             store_record(username, ciphertext, nonce, tag)
         else:
-            dec_record = aes_encryption_test.decrypt(vault_key, nonce, tag, record)
+            dec_record = decrypt(vault_key, nonce, tag, record)
             dec_record = dec_record + '|||' + website+'||'+password_record
-            nonce, ciphertext, tag = aes_encryption_test.encrypt(dec_record, vault_key)
-            store_record(username, ciphertext, nonce, tag)
+            nonce, ciphertext, tag = encrypt(dec_record, vault_key)
+            store_record(username, ciphertext, nonce, tag) 
 
 elif option == 'v':
 
@@ -216,7 +217,7 @@ elif option == 'v':
         if(record == 'Empty'):
             print(record)
         else:
-            dec_record = aes_encryption_test.decrypt(vault_key, nonce, tag, record)
+            dec_record = decrypt(vault_key, nonce, tag, record)
             print(dec_record)
 
 

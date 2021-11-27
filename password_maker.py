@@ -43,5 +43,5 @@ def make_password(password_len):
     return password
 
 
-password_len = int(input('enter password length: '))
-print('Password is : ', make_password(password_len))
+# password_len = int(input('enter password length: '))
+# print('Password is : ', make_password(password_len))
