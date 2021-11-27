@@ -130,7 +130,7 @@ def retrieve_vault_salt(username):
 
 
 
-option = input("Add Account: a \n Check if Master-Password is Correct: c \n  Add password to Account: p \n View all website-password pairs: v")
+option = input("Add Account: a \n Check if Master-Password is Correct: c \n  Add password to Account: ap \n View all website-password pairs: v")
 
 if option == 'a':
 
@@ -160,7 +160,7 @@ elif option == 'c':
         print('Password is incorrect')
 
 
-elif option == 'p':
+elif option == 'ap':
 
     username = input("Username: ")
     password = getpass()
@@ -181,8 +181,10 @@ elif option == 'p':
         password_length = int(input("Password length: "))
         password_record = str(password_maker.make_password(password_length))
 
-        vault_key_wsalt = get_vault_key(password, username)
+        vault_salt = retrieve_vault_salt(username)
+        vault_key_wsalt = get_vault_key(password, vault_salt, username)
         vault_key = vault_key_wsalt[32:]
+        
         if(record == 'Empty'):
             nonce, ciphertext, tag = aes_encryption_test.encrypt(website+'||'+password_record, vault_key)
             store_record(username, ciphertext, nonce, tag)
