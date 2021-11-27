@@ -11,9 +11,8 @@ import ssl
 # shaan : qwerty 
 # divvij: 12345
 
-def get_vault_key(master_password, username):
+def get_vault_key(master_password, salt, username):
 
-    salt = os.urandom(32) # Remember this
     combine = username + master_password
 
     key = hashlib.pbkdf2_hmac(
@@ -46,11 +45,13 @@ def check_auth_hash(password_to_check, username, auth_hash_wsalt):
     salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
     key_from_storage = auth_hash_wsalt[32:]
 
+    salt_vault = retrieve_vault_salt(username)
+
     # Use the exact same setup you used to generate the key, but this time put in the password to check
     vault_key = hashlib.pbkdf2_hmac(
         'sha256',
         (username + password_to_check).encode('utf-8'), # Convert the password to bytes
-        salt_from_storage, 
+        salt_vault, 
         100000,
     )
 
@@ -67,15 +68,15 @@ def check_auth_hash(password_to_check, username, auth_hash_wsalt):
     else:
         return False
 
-def store_auth_hash(username, auth_hash_wsalt):
-
+def store_auth_hash(username, auth_hash_wsalt, salt_vault):
+    # Essesntially creating an account
     uri = "mongodb+srv://shaandivvij:divvijshaan@cluster0.kvz4b.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     client = MongoClient(uri, ssl_cert_reqs=ssl.CERT_NONE)
 
     db = client.passwordManager
     collection = db.masterPasswords
 
-    post = {"username": username, "auth_hash": auth_hash_wsalt, "record": 'Empty', "nonce": 'Empty', "tag": 'Empty'}
+    post = {"username": username, "auth_hash": auth_hash_wsalt, "record": 'Empty', "nonce": 'Empty', "tag": 'Empty', "salt_vault": salt_vault}
 
     collection.insert_one(post)
 
@@ -111,9 +112,23 @@ def retrieve_record(username):
     db = client.passwordManager
     collection = db.masterPasswords
 
-    result = collection.find({"username": auth_hash_wsalt})
+    result = collection.find({"username": username})
 
     return result[0]["record"], result[0]["nonce"], result[0]["tag"]
+
+def retrieve_vault_salt(username):
+
+    uri = "mongodb+srv://shaandivvij:divvijshaan@cluster0.kvz4b.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+    client = MongoClient(uri, ssl_cert_reqs=ssl.CERT_NONE)
+
+    db = client.passwordManager
+    collection = db.masterPasswords
+
+    result = collection.find({"username": username})
+
+    return result[0]["salt_vault"]
+
+
 
 option = input("Add Account: a \n Check if Master-Password is Correct: c \n  Add password to Account: p \n View all website-password pairs: v")
 
@@ -121,13 +136,15 @@ if option == 'a':
 
     username = input("Username: ")
     password = getpass()
+    salt1 = os.urandom(32) # Remember this
+    salt2 = os.urandom(32) # Remember this
 
-    vault_key_wsalt = get_vault_key(password, username)
+    vault_key_wsalt = get_vault_key(password, salt1, username)
     salt = vault_key_wsalt[:32] # 32 is the length of the salt
     vault_key = vault_key_wsalt[32:]
-    auth_hash_wsalt = get_auth_hash(vault_key, salt, password)
+    auth_hash_wsalt = get_auth_hash(vault_key, salt2, password)
 
-    store_auth_hash(username, auth_hash_wsalt)
+    store_auth_hash(username, auth_hash_wsalt, salt)
 
 elif option == 'c':
 
