@@ -60,6 +60,8 @@ Our password manager has been developed using the following tools and libraries:
 
 3. password_maker.py - This file contains the code for the password generation function, used to generate random cryptographically secure passwords.
 
+4. aes_encryption_test.py - Contains pyrcryptodome implementation of AES Block cipher.
+
 ### To Improve
 
 * The authorization hash is checked locally and not on server
