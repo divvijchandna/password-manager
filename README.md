@@ -1,5 +1,5 @@
 # CZ4010 Password Manager
-## Divvij Chandna and Aryaman Shaan
+## Chandna Divvij and Shaan Aryaman
 
 ### Motivation 
 
@@ -31,7 +31,7 @@ Essentially for each user on the system we store a vault. The vault consists of 
 
 3. Functionality: We have covered that to call vault to local machine we need to generate Authorization Hash. We then decrypt (and encrypt) the vault locally using AES with the vault key (and nonce and tag). The vault in plaintext is a list of tuples (website, email, password). We can perform many functions on this plaintext, encrypt it once we are done and send the edited vault back to the cloud. We provide the following functions: create account, add password, update password (given website and email), delete password (given website and email), extract  specific password (given website and email), view all passwords (given username). Note we ask for both website and email since one user could have multiple accounts on the same website. 
 
-4. Add/Update Password:
+4. Add/Update Password: We have given users the option to either manually add their own passwords to the vault or use our secure random password generator. The random password generator is created using the Secrets library in Python. The user enters their requirements for the password such as the password length and number of uppercase, lowercase and special characters and a
 
 ### Development
 
@@ -50,11 +50,15 @@ Our password manager has been developed using the following tools and libraries:
 6. Tkinter - Tkinter is a Python interface used to create a GUI for our project. Tkinter is Python’s standard GUI and is used to create the Desktop Application on which we run our project.
 
 
-### To Improve
+### List of files and their Functions
 
-* Rotating encryption
+1. app.py - This file contains the Tkinter code for the frontend of our project.
+
+2. hashwsalt_2.py - This file is used to get and put data into the MongoDB database. It also stores all the logic of the various functionality of our application.
+
+3. password_maker.py - This file contains the code for the password generation function, used to generate random cryptographically secure passwords.
+
+### To Improve
 
 * The authorization hash is checked locally and not on server
 
-
-### List of files and their Functions
