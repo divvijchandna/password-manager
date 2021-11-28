@@ -128,7 +128,7 @@ def retrieve_vault_salt(username):
     return result[0]["salt_vault"]
 
 
-print("1.Add Account: a \n2.Check if Master-Password is Correct: c \n3.Add password to Account: ap \n4.View all website-password pairs: v\nd: delete a saved password")
+print("1.Add Account: a \n2.Check if Master-Password is Correct: c \n3.Add password to Account: ap \n4.View all website-password pairs: v\n5.Delete a saved password: d \n6.View specific password: vs")
 print()
 option = input('Enter your selection: ')
 
@@ -306,3 +306,56 @@ elif option == 'd':
 
             nonce, ciphertext, tag = encrypt(dec_record, vault_key)
             store_record(username, ciphertext, nonce, tag) 
+
+
+elif option == 'vs':
+
+    username = input("Username: ")
+    password = getpass()
+
+    auth_hash_wsalt = retrieve_auth_hash(username)
+
+    check = check_auth_hash(password, username, auth_hash_wsalt)
+
+    # salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
+    # key_from_storage = auth_hash_wsalt[32:]
+
+    if not check:
+        print('Password is incorrect. Try again.')
+    else:
+        # vault_key_wsalt = get_vault_key(password, username)
+        record, nonce, tag = retrieve_record(username)
+        website = str(input("Website name: "))
+        email_user = str(input("Enter email used for website login: "))
+
+        vault_salt = retrieve_vault_salt(username)
+        vault_key_wsalt = get_vault_key(password, vault_salt, username)
+        vault_key = vault_key_wsalt[32:]
+
+        if(record == 'Empty'):
+            print('Record is Empty')
+        else:
+            dec_record = decrypt(vault_key, nonce, tag, record)
+            websites_all = []
+            emails_all = []
+            passwords_all = []
+            for tup in dec_record.split('|||'):
+                li = str(tup).split('||')
+                websites_all.append(str(li[0]).lower())
+                emails_all.append(str(li[1]).lower())
+                passwords_all.append(str(li[2]))
+            
+            flag = 0
+            if (website.lower() in websites_all) and (email_user.lower() in emails_all):
+                indices_of_website = [i for i, x in enumerate(websites_all) if x == website]
+                for ind in indices_of_website:
+                    if(emails_all[ind] == email_user.lower()):
+                        flag = 1
+                        print('Password for this website and email pair: ', passwords_all[ind])
+
+            if(flag==0):
+                print('Website - email pair does not exist in Record')
+
+            nonce, ciphertext, tag = encrypt(dec_record, vault_key)
+            store_record(username, ciphertext, nonce, tag) 
+
