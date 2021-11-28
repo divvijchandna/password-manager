@@ -551,14 +551,117 @@ def del_passwords():
         nonce, ciphertext, tag = encrypt(dec_record, vault_key)
         store_record(usr3, ciphertext, nonce, tag) 
 
+def confirm_password_v1():
+    global screen2
+    screen2 = Toplevel(screen)
+    screen2.title("Login")
+    screen2.geometry("500x400")
+
+    global username_v1, password_v1, username_entry_v1, password_entry_v1
+
+    username_v1 = StringVar()
+    password_v1 = StringVar()
+
+    Label(screen2, text = "Please enter details below").pack()
+    Label(screen2, text = "").pack()
+    Label(screen2, text = "Username").pack()
+    username_entry_v1 = Entry(screen2, textvariable = username_v1)
+    username_entry_v1.pack()
+    Label(screen2, text = "Password").pack()
+    password_entry_v1 = Entry(screen2, textvariable = password_v1, show="*")
+    password_entry_v1.pack()
+
+    Label(screen2, text = "").pack()
+    Button(screen2, text = "Confirm Password", width = 20, height = 1, command = v1_passwords_button).pack()
+
+def v1_passwords_button():
+    global usr4, pwd4
+    usr4 = username_v1.get()
+    pwd4 = password_v1.get()
+
+    username_entry_v1.delete(0, END)
+    password_entry_v1.delete(0, END)
+
+    auth_hash_wsalt = retrieve_auth_hash(usr4)
+
+    check = check_auth_hash(pwd4, usr4, auth_hash_wsalt)
+
+    if not check:
+        Label(screen2, text = "Password is incorrect. Try again.", fg = "red", font = ("calibri", 11)).pack()
+    else:
+        screen2.after(0, screen2.destroy)
+
+        global screen7
+        screen7 = Toplevel(screen)
+        screen7.title("View Specific Password")
+        screen7.geometry("500x400")
+
+        global website4, email4, website_entry4, email_entry4
+
+        website4 = StringVar()
+        email4 = StringVar()
+
+        Label(screen7, text = "Please enter details below").pack()
+        Label(screen7, text = "").pack()
+        Label(screen7, text = "Website name").pack()
+        website_entry4 = Entry(screen7, textvariable = website4)
+        website_entry4.pack()
+        Label(screen7, text = "Email/User ID on Website").pack()
+        email_entry4 = Entry(screen7, textvariable = email4)
+        email_entry4.pack()
+        Label(screen7, text = "").pack()
+        Button(screen7, text = "View Specific Password", width = 20, height = 1, command = v1_passwords).pack()
+
+def v1_passwords():
+    w = website4.get()
+    e = email4.get()
+
+    website_entry4.delete(0, END)
+    email_entry4.delete(0, END)
+
+    record, nonce, tag = retrieve_record(usr4)
+    vault_salt = retrieve_vault_salt(usr4)
+    vault_key_wsalt = get_vault_key(pwd4, vault_salt, usr4)
+    vault_key = vault_key_wsalt[32:]
+
+    if(record == 'Empty'):
+        Label(screen6, text = "Password vault is empty.", font = ("calibri", 11)).pack()
+    else:
+        dec_record = decrypt(vault_key, nonce, tag, record)
+        websites_all = []
+        emails_all = []
+        passwords_all = []
+        for tup in dec_record.split('|||'):
+            li = str(tup).split('||')
+            websites_all.append(str(li[0]).lower())
+            emails_all.append(str(li[1]).lower())
+            passwords_all.append(str(li[2]))
+        
+        flag = 0
+        if (w.lower() in websites_all) and (e.lower() in emails_all):
+            indices_of_website = [i for i, x in enumerate(websites_all) if x == w]
+            for ind in indices_of_website:
+                if(emails_all[ind] == e.lower()):
+                    flag = 1
+                    Label(screen7, text = "Password for this website and email pair:", font = ("calibri", 11)).pack()
+                    Label(screen7, text = passwords_all[ind], font = ("calibri", 11)).pack()
+
+        if(flag==0):
+            Label(screen7, text = "Website-User ID Pair does not Exist", fg = "red", font = ("calibri", 11)).pack()
+
+        nonce, ciphertext, tag = encrypt(dec_record, vault_key)
+        store_record(usr4, ciphertext, nonce, tag)
+
 def main_screen():
     global screen
     screen = Tk()
-    screen.geometry("500x400")
+    screen.geometry("500x450")
     screen.title("CZ4010 Password Manager")
     Label (text = "CZ4010 Password Manager", bg = "grey", width = "300", height = "2", font = ("Calibri", 13)).pack()
     Label(text = "").pack()
     Button(text = "Sign Up", height = "2", width = "40", command = sign_up).pack()
+    Label(text = "").pack()
+    Button(text = "View Specific Password", height = "2", width = "40", command = confirm_password_v1).pack()
     Label(text = "").pack()
     Button(text = "View Passwords", height = "2", width = "40", command = view_passwords_button).pack()
     Label(text = "").pack()
