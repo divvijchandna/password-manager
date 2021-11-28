@@ -69,6 +69,7 @@ def view_passwords_button():
 
 def view_passwords():
 
+    Label(screen2, text = "Connecting to database...", font = ("calibri", 11)).pack()
     usr = username_v.get()
     pwd = password_v.get()
 
@@ -82,6 +83,7 @@ def view_passwords():
     if not check:
         Label(screen2, text = "Password is incorrect. Try again.", fg = "red", font = ("calibri", 11)).pack()
     else:
+        Label(screen2, text = "Data Loading...", font = ("calibri", 11)).pack()
         screen2.after(200, screen2.destroy)
         record, nonce, tag = retrieve_record(usr)
         salt_vault = retrieve_vault_salt(usr)
@@ -107,28 +109,43 @@ def view_passwords():
         e = Entry(screen3, width=15,
                                font=('Calibri',12, 'bold'))
                   
-        e.grid(row=0, column=0, padx=(115, 10), pady=(30, 10))
+        e.grid(row=0, column=0, padx=(40, 10), pady=(30, 10))
         e.insert(END, 'Website')
+        e.bind("<Key>", lambda e: "break")
+
+        e = Entry(screen3, width=20,
+                               font=('Calibri',12, 'bold'))
+                  
+        e.grid(row=0, column=1, pady=(30, 10), padx=(0, 10))
+        e.insert(END, 'Email/User ID')
+        e.bind("<Key>", lambda e: "break")
 
         e = Entry(screen3, width=15,
                                font=('Calibri',12, 'bold'))
                   
-        e.grid(row=0, column=1, pady=(30, 10))
+        e.grid(row=0, column=2, pady=(30, 10))
         e.insert(END, 'Password')
+        e.bind("<Key>", lambda e: "break")
 
         for i in range(total_rows):
             for j in range(total_columns):
-                  
-                e = Entry(screen3, width=15,
+
+                if j == 1:
+                    e = Entry(screen3, width=20,
+                               font=('Calibri',12))
+                else:
+                    e = Entry(screen3, width=15,
                                font=('Calibri',12))
                 
                 if j == 0:
-                    e.grid(row=i+1, column=j, padx=(115, 10))
+                    e.grid(row=i+1, column=j, padx=(40, 10))
+                elif j == 1:
+                    e.grid(row=i+1, column=j, padx=(0, 10))
                 else:
                     e.grid(row=i+1, column=j)
                 e.insert(END, password_array[i][j])
+                e.bind("<Key>", lambda e: "break")
         
-
 def confirm_password_add():
     global screen2
     screen2 = Toplevel(screen)
@@ -175,16 +192,20 @@ def add_passwords_button():
         screen4.title("Add Passwords")
         screen4.geometry("500x400")
 
-        global website, password_record, website_entry, password_record_entry
+        global website, password_record, email, website_entry, password_record_entry, email_entry
 
         website = StringVar()
         password_record = StringVar()
+        email = StringVar()
 
         Label(screen4, text = "Please enter details below").pack()
         Label(screen4, text = "").pack()
         Label(screen4, text = "Website name").pack()
         website_entry = Entry(screen4, textvariable = website)
         website_entry.pack()
+        Label(screen4, text = "Email/User ID on Website").pack()
+        email_entry = Entry(screen4, textvariable = email)
+        email_entry.pack()
         Label(screen4, text = "Password").pack()
         password_record_entry = Entry(screen4, textvariable = password_record, show="*")
         password_record_entry.pack()
@@ -195,9 +216,11 @@ def add_passwords():
 
     wbs = website.get()
     pwr = password_record.get()
+    eid = email.get()
 
     website_entry.delete(0, END)
-    password_record_entry.delete(0, END)    
+    password_record_entry.delete(0, END)
+    email_entry.delete(0, END)
 
     record, nonce, tag = retrieve_record(usr)
     vault_salt = retrieve_vault_salt(usr)
@@ -205,17 +228,16 @@ def add_passwords():
     vault_key = vault_key_wsalt[32:]
 
     if(record == 'Empty'):
-        nonce, ciphertext, tag = encrypt(wbs+'||'+pwr, vault_key)
+        nonce, ciphertext, tag = encrypt(wbs+'||'+eid+'||'+pwr, vault_key)
         store_record(usr, ciphertext, nonce, tag)
         Label(screen4, text = "Password Added Successfully", fg = "green", font = ("calibri", 11)).pack()
         screen4.after(1000, screen4.destroy)
     else:
         dec_record = decrypt(vault_key, nonce, tag, record)
-        dec_record = dec_record + '|||' + wbs+'||'+pwr
+        dec_record = dec_record + '|||' + wbs+'||'+eid+'||'+pwr
         nonce, ciphertext, tag = encrypt(dec_record, vault_key)
         store_record(usr, ciphertext, nonce, tag)
         Label(screen4, text = "Password Added Successfully", fg = "green", font = ("calibri", 11)).pack()
-        screen4.after(1000, screen4.destroy)
 
 def confirm_password_gen():
     global screen2
@@ -261,21 +283,52 @@ def gen_passwords_button():
         global screen5
         screen5 = Toplevel(screen)
         screen5.title("Add Passwords")
-        screen5.geometry("500x400")
+        screen5.geometry("500x500")
 
-        global website2, password_length, website_entry2, password_length_entry
+        global website2, password_length, email2, website_entry2, password_length_entry, email_entry2
+        global lower, upper, digit, special, lower_entry, upper_entry, digit_entry, special_entry, special_set, special_set_entry
 
         website2 = StringVar()
         password_length = StringVar()
+        email2 = StringVar()
+        lower = StringVar()
+        upper = StringVar()
+        digit = StringVar()
+        special = StringVar()
+        special_set = StringVar()
 
         Label(screen5, text = "Please enter details below").pack()
         Label(screen5, text = "").pack()
         Label(screen5, text = "Website name").pack()
         website_entry2 = Entry(screen5, textvariable = website2)
         website_entry2.pack()
+        Label(screen5, text = "Email/User ID on Website").pack()
+        email_entry2 = Entry(screen5, textvariable = email2)
+        email_entry2.pack()
         Label(screen5, text = "Password Length").pack()
-        password_length_entry = Entry(screen5, textvariable = password_length, show="")
+        password_length_entry = Entry(screen5, textvariable = password_length)
+        password_length_entry.insert(END, '12')
         password_length_entry.pack()
+        Label(screen5, text = "Min Lowercase Letters").pack()
+        lower_entry = Entry(screen5, textvariable = lower)
+        lower_entry.insert(END, '1')
+        lower_entry.pack()
+        Label(screen5, text = "Min Uppercase Letters").pack()
+        upper_entry = Entry(screen5, textvariable = upper)
+        upper_entry.insert(END, '1')
+        upper_entry.pack()
+        Label(screen5, text = "Min Digits").pack()
+        digit_entry = Entry(screen5, textvariable = digit)
+        digit_entry.insert(END, '1')
+        digit_entry.pack()
+        Label(screen5, text = "Min Special Characters").pack()
+        special_entry = Entry(screen5, textvariable = special)
+        special_entry.insert(END, '1')
+        special_entry.pack()
+        Label(screen5, text = "Special Character Set").pack()
+        special_set_entry = Entry(screen5, textvariable = special_set)
+        special_set_entry.insert(END, " !\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~")
+        special_set_entry.pack()
         Label(screen5, text = "").pack()
         Button(screen5, text = "Generate Password", width = 20, height = 1, command = gen_passwords).pack()
 
@@ -283,28 +336,57 @@ def gen_passwords():
 
     wbt = website2.get()
     pwl = password_length.get()
+    eml = email2.get()
+    upp = upper.get()
+    low = lower.get()
+    dig = digit.get()
+    spe = special.get()
+    sps = special_set.get()
 
     website_entry2.delete(0, END)
-    password_length_entry.delete(0, END)    
+    password_length_entry.delete(0, END)
+    password_length_entry.insert(END, '12')
+    email_entry2.delete(0, END)
+    upper_entry.delete(0, END)
+    upper_entry.insert(END, '1')
+    lower_entry.delete(0, END)
+    lower_entry.insert(END, '1')
+    digit_entry.delete(0, END)
+    digit_entry.insert(END, '1')
+    special_entry.delete(0, END)
+    special_entry.insert(END, '1')
+    special_set_entry.delete(0, END)
+    special_set_entry.insert(END, " !\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~")
 
-    record, nonce, tag = retrieve_record(usr2)
-    vault_salt = retrieve_vault_salt(usr2)
-    vault_key_wsalt = get_vault_key(pwd2, vault_salt, usr2)
-    vault_key = vault_key_wsalt[32:]
-    password_record2 = str(make_password(int(pwl)))
+    if (int(upp)+int(low)+int(dig)+int(spe) > int(pwl)):
+        Label(screen5, text = "Invalid inputs", fg = "red", font = ("calibri", 11)).pack()
 
-    if(record == 'Empty'):
-        nonce, ciphertext, tag = encrypt(wbt+'||'+password_record2, vault_key)
-        store_record(usr2, ciphertext, nonce, tag)
-        Label(screen5, text = "Password Generated Successfully", fg = "green", font = ("calibri", 11)).pack()
-        screen5.after(1000, screen5.destroy)
+    elif int(upp) == 0 and int(low) == 0 and int(dig) == 0 and int(spe) == 0:
+        Label(screen5, text = "Invalid inputs", fg = "red", font = ("calibri", 11)).pack()
+
+    elif int(pwl) <= 4:
+        Label(screen5, text = "Password length too short", fg = "red", font = ("calibri", 11)).pack()
+
     else:
-        dec_record = decrypt(vault_key, nonce, tag, record)
-        dec_record = dec_record + '|||' + wbt+'||'+password_record2
-        nonce, ciphertext, tag = encrypt(dec_record, vault_key)
-        store_record(usr2, ciphertext, nonce, tag)
-        Label(screen5, text = "Password Added Successfully", fg = "green", font = ("calibri", 11)).pack()
-        screen5.after(1000, screen5.destroy)
+        record, nonce, tag = retrieve_record(usr2)
+        vault_salt = retrieve_vault_salt(usr2)
+        vault_key_wsalt = get_vault_key(pwd2, vault_salt, usr2)
+        vault_key = vault_key_wsalt[32:]
+        password_record2 = str(make_password(int(pwl), int(low), int(upp), int(dig), int(spe), sps))
+
+        if(record == 'Empty'):
+            nonce, ciphertext, tag = encrypt(wbt+'||'+eml+'||'+password_record2, vault_key)
+            store_record(usr2, ciphertext, nonce, tag)
+            Label(screen5, text = "Password Generated Successfully", fg = "green", font = ("calibri", 11)).pack()
+            Label(screen5, text = password_record2, font = ("calibri", 11)).pack()
+            screen5.after(1000, screen5.destroy)
+        else:
+            dec_record = decrypt(vault_key, nonce, tag, record)
+            dec_record = dec_record + '|||' + wbt+'||'+eml+'||'+password_record2
+            nonce, ciphertext, tag = encrypt(dec_record, vault_key)
+            store_record(usr2, ciphertext, nonce, tag)
+            Label(screen5, text = "Password Generated Successfully", fg = "green", font = ("calibri", 11)).pack()
+            Label(screen5, text = password_record2, font = ("calibri", 11)).pack()
 
 def main_screen():
     global screen
