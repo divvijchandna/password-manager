@@ -23,6 +23,8 @@
 
 # print(websites.index(website.lower()))
 # print(emails.index(email.lower()))
+import secrets
+import tkinter     
 
 li = ['1','2','3','4','5', '2']
 indices = [i for i, x in enumerate(li) if x == '2']
@@ -42,3 +44,4 @@ rec8 = 'instagram||divvij.chandna@gmail.com||:8KG0Shf|||facebook||divvij@ntu.com
 rec9 = 'instagram||divvij.chandna@gmail.com||pp1!#p=($k7EC#MfxU):|||facebook||divvij@ntu.com||$Dq:um94!hTV|||google||dc@gmail.com||bleh|||yahoo||dc@yahoo.com||z#bF!CR:9k*g|||snapchat||divvij04||cool|||reddit||chandbabu||hot|||reddit||chandbabu||/ApYU0W|||google||dc@gmail.com||H.p)360|||qwerty||divvij@qwerty.com||Rpdk&0RAY7'
 reca = '                                                            facebook||divvij@ntu.com||$Dq:um94!hTV|||google||dc@gmail.com||bleh|||yahoo||dc@yahoo.com||z#bF!CR:9k*g|||snapchat||divvij04||cool|||reddit||chandbabu||hot|||reddit||chandbabu||/ApYU0W|||google||dc@gmail.com||H.p)360|||qwerty||divvij@qwerty.com||Rpdk&0RAY7'
 
+print(secrets.randbits(10))
