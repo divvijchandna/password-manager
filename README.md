@@ -66,8 +66,9 @@ Our password manager has been developed using the following tools and libraries:
 
 ### Installation
 
-pip install pycryptodome
-pip install pymongo
+1. pip install pycryptodome
+
+2. pip install pymongo
 
 hashlib, secrets, tkinter should be installed by default along with python3
 
