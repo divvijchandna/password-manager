@@ -39,7 +39,7 @@ Our password manager has been developed using the following tools and libraries:
 
 1. Python - Python is the only programming language we have used for development, implementing the frontend, logic and backend using the language. Python has a wide variety of libraries for all purposes, such as Tkinter for the frontend, Hashlib for cryptographic hash functions, etc., making it the obvious choice for our project.
 
-2. Cryptodome - Cryptodome is a Python library which can implement AES (Advanced Encryption Standard). AES is a symmetric block cipher and is the standard for symmetric encryption. AES is used in our project to encrypt and decrypt the vault, which is where each user’s passwords are stored.
+2. Cryptodome - Cryptodome is a Python library which can implement AES (Advanced Encryption Standard). AES is a symmetric block cipher and is the standard for symmetric encryption. AES is used in our project to encrypt and decrypt the vault, which is where each user’s passwords are stored. While installing- pycryptodome
 
 3. Hashlib - Hashlib is another cryptographic Python library used for hashing algorithms. We use PBKDF2 (Password-Based Key Derivation Function 2) from Hashlib which is a key derivation function. PBKDF2 is used to generate a vault key using the user’s master  password.
 
@@ -64,3 +64,13 @@ Our password manager has been developed using the following tools and libraries:
 
 * The authorization hash is checked locally and not on server
 
+### Installation
+
+pip install pycryptodome
+pip install pymongo
+
+hashlib, secrets, tkinter should be installed by default along with python3
+
+### To run
+
+python app.py
