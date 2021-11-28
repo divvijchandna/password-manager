@@ -47,6 +47,8 @@ Our password manager has been developed using the following tools and libraries:
 
 5. MongoDB - MongoDB is a documented oriented database program, modelling the cloud database in our application. The data in our project is not stored locally but on a MongoDB database which is called by Python in our application by the PyMongo library.
 
+<img src="MongoDB.jpeg" alt="a" width="600"/>
+
 6. Tkinter - Tkinter is a Python interface used to create a GUI for our project. Tkinter is Python’s standard GUI and is used to create the Desktop Application on which we run our project.
 
 
