@@ -193,6 +193,8 @@ elif option == 'ap':
             store_record(username, ciphertext, nonce, tag)
         else:
             dec_record = decrypt(vault_key, nonce, tag, record)
+            
+
             dec_record = dec_record + '|||'+ website+'||'+email_user+'||'+password_record
             nonce, ciphertext, tag = encrypt(dec_record, vault_key)
             store_record(username, ciphertext, nonce, tag) 
