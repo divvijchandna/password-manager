@@ -95,7 +95,7 @@ def view_passwords():
         screen3.geometry("500x400")
 
         if(record == 'Empty'):
-            Label(screen3, text = 'No Passwords').pack()
+            Label(screen3, text = 'Password vault is empty.').pack()
         else:
             dec_record = decrypt(vault_key, nonce, tag, record)
             password_array = []
@@ -211,6 +211,7 @@ def add_passwords_button():
         password_record_entry.pack()
         Label(screen4, text = "").pack()
         Button(screen4, text = "Add Password", width = 20, height = 1, command = add_passwords).pack()
+        Button(screen4, text = "Update Password", width = 20, height = 1, command = add_passwords).pack()
 
 def add_passwords():
 
@@ -231,13 +232,40 @@ def add_passwords():
         nonce, ciphertext, tag = encrypt(wbs+'||'+eid+'||'+pwr, vault_key)
         store_record(usr, ciphertext, nonce, tag)
         Label(screen4, text = "Password Added Successfully", fg = "green", font = ("calibri", 11)).pack()
-        screen4.after(1000, screen4.destroy)
+
     else:
         dec_record = decrypt(vault_key, nonce, tag, record)
-        dec_record = dec_record + '|||' + wbs+'||'+eid+'||'+pwr
+        websites_all = []
+        emails_all = []
+        passwords_all = []
+        for tup in dec_record.split('|||'):
+            li = str(tup).split('||')
+            websites_all.append(str(li[0]).lower())
+            emails_all.append(str(li[1]).lower())
+            passwords_all.append(str(li[2]))
+        
+        flag = 0
+        if (wbs.lower() in websites_all) and (eid.lower() in emails_all):
+            indices_of_website = [i for i, x in enumerate(websites_all) if x == wbs]
+            for ind in indices_of_website:
+                if(emails_all[ind] == eid.lower()):
+                    flag = 1
+                    passwords_all[ind] = pwr
+                    dec_record = ''
+                    dec_record = websites_all[0] + '||' + emails_all[0] + '||' + passwords_all[0]
+                    for i in range(1, len(websites_all)):
+                        dec_record = dec_record + '|||' + websites_all[i] + '||' + emails_all[i] + '||' + passwords_all[i]
+                    break
+
+        if(flag==0):
+            dec_record = dec_record + '|||' + wbs+'||'+eid+'||'+pwr
+
         nonce, ciphertext, tag = encrypt(dec_record, vault_key)
         store_record(usr, ciphertext, nonce, tag)
-        Label(screen4, text = "Password Added Successfully", fg = "green", font = ("calibri", 11)).pack()
+        if flag == 0:
+            Label(screen4, text = "Password Added Successfully", fg = "green", font = ("calibri", 11)).pack()
+        else:
+            Label(screen4, text = "Password Updated Successfully", fg = "green", font = ("calibri", 11)).pack()
 
 def confirm_password_gen():
     global screen2
@@ -331,6 +359,7 @@ def gen_passwords_button():
         special_set_entry.pack()
         Label(screen5, text = "").pack()
         Button(screen5, text = "Generate Password", width = 20, height = 1, command = gen_passwords).pack()
+        Button(screen5, text = "Update Password", width = 20, height = 1, command = gen_passwords).pack()
 
 def gen_passwords():
 
@@ -374,19 +403,153 @@ def gen_passwords():
         vault_key = vault_key_wsalt[32:]
         password_record2 = str(make_password(int(pwl), int(low), int(upp), int(dig), int(spe), sps))
 
-        if(record == 'Empty'):
-            nonce, ciphertext, tag = encrypt(wbt+'||'+eml+'||'+password_record2, vault_key)
-            store_record(usr2, ciphertext, nonce, tag)
-            Label(screen5, text = "Password Generated Successfully", fg = "green", font = ("calibri", 11)).pack()
-            Label(screen5, text = password_record2, font = ("calibri", 11)).pack()
-            screen5.after(1000, screen5.destroy)
-        else:
-            dec_record = decrypt(vault_key, nonce, tag, record)
+    if(record == 'Empty'):
+        nonce, ciphertext, tag = encrypt(wbt+'||'+eml+'||'+password_record2, vault_key)
+        store_record(usr2, ciphertext, nonce, tag)
+        Label(screen5, text = "Password Generated Successfully", fg = "green", font = ("calibri", 11)).pack()
+        Label(screen5, text = password_record2, font = ("calibri", 11)).pack()
+
+    else:
+        dec_record = decrypt(vault_key, nonce, tag, record)
+        websites_all = []
+        emails_all = []
+        passwords_all = []
+        for tup in dec_record.split('|||'):
+            li = str(tup).split('||')
+            websites_all.append(str(li[0]).lower())
+            emails_all.append(str(li[1]).lower())
+            passwords_all.append(str(li[2]))
+        
+        flag = 0
+        if (wbt.lower() in websites_all) and (eml.lower() in emails_all):
+            indices_of_website = [i for i, x in enumerate(websites_all) if x == wbt]
+            for ind in indices_of_website:
+                if(emails_all[ind] == eml.lower()):
+                    flag = 1
+                    passwords_all[ind] = password_record2
+                    dec_record = ''
+                    dec_record = websites_all[0] + '||' + emails_all[0] + '||' + passwords_all[0]
+                    for i in range(1, len(websites_all)):
+                        dec_record = dec_record + '|||' + websites_all[i] + '||' + emails_all[i] + '||' + passwords_all[i]
+                    break
+
+        if(flag==0):
             dec_record = dec_record + '|||' + wbt+'||'+eml+'||'+password_record2
-            nonce, ciphertext, tag = encrypt(dec_record, vault_key)
-            store_record(usr2, ciphertext, nonce, tag)
+
+        nonce, ciphertext, tag = encrypt(dec_record, vault_key)
+        store_record(usr2, ciphertext, nonce, tag)
+        if flag == 0:
             Label(screen5, text = "Password Generated Successfully", fg = "green", font = ("calibri", 11)).pack()
-            Label(screen5, text = password_record2, font = ("calibri", 11)).pack()
+        else:
+            Label(screen5, text = "Password Updated Successfully", fg = "green", font = ("calibri", 11)).pack()
+
+def confirm_password_del():
+    global screen2
+    screen2 = Toplevel(screen)
+    screen2.title("Login")
+    screen2.geometry("500x400")
+
+    global username_d, password_d, username_entry_d, password_entry_d
+
+    username_d = StringVar()
+    password_d = StringVar()
+
+    Label(screen2, text = "Please enter details below").pack()
+    Label(screen2, text = "").pack()
+    Label(screen2, text = "Username").pack()
+    username_entry_d = Entry(screen2, textvariable = username_d)
+    username_entry_d.pack()
+    Label(screen2, text = "Password").pack()
+    password_entry_d = Entry(screen2, textvariable = password_d, show="*")
+    password_entry_d.pack()
+
+    Label(screen2, text = "").pack()
+    Button(screen2, text = "Confirm Password", width = 20, height = 1, command = del_passwords_button).pack()
+
+def del_passwords_button():
+    global usr3, pwd3
+    usr3 = username_d.get()
+    pwd3 = password_d.get()
+
+    username_entry_d.delete(0, END)
+    password_entry_d.delete(0, END)
+
+    auth_hash_wsalt = retrieve_auth_hash(usr3)
+
+    check = check_auth_hash(pwd3, usr3, auth_hash_wsalt)
+
+    if not check:
+        Label(screen2, text = "Password is incorrect. Try again.", fg = "red", font = ("calibri", 11)).pack()
+    else:
+        screen2.after(0, screen2.destroy)
+
+        global screen6
+        screen6 = Toplevel(screen)
+        screen6.title("Delete Passwords")
+        screen6.geometry("500x400")
+
+        global website3, email3, website_entry3, email_entry3
+
+        website3 = StringVar()
+        email3 = StringVar()
+
+        Label(screen6, text = "Please enter details below").pack()
+        Label(screen6, text = "").pack()
+        Label(screen6, text = "Website name").pack()
+        website_entry3 = Entry(screen6, textvariable = website3)
+        website_entry3.pack()
+        Label(screen6, text = "Email/User ID on Website").pack()
+        email_entry3 = Entry(screen6, textvariable = email3)
+        email_entry3.pack()
+        Label(screen6, text = "").pack()
+        Button(screen6, text = "Delete Password", width = 20, height = 1, command = del_passwords).pack()
+
+def del_passwords():
+    ws = website3.get()
+    em = email3.get()
+
+    website_entry3.delete(0, END)
+    email_entry3.delete(0, END)
+
+    record, nonce, tag = retrieve_record(usr3)
+    vault_salt = retrieve_vault_salt(usr3)
+    vault_key_wsalt = get_vault_key(pwd3, vault_salt, usr3)
+    vault_key = vault_key_wsalt[32:]
+
+    if(record == 'Empty'):
+        Label(screen6, text = "Password vault is empty.", font = ("calibri", 11)).pack()
+    else:
+        dec_record = decrypt(vault_key, nonce, tag, record)
+        websites_all = []
+        emails_all = []
+        passwords_all = []
+        for tup in dec_record.split('|||'):
+            li = str(tup).split('||')
+            websites_all.append(str(li[0]).lower())
+            emails_all.append(str(li[1]).lower())
+            passwords_all.append(str(li[2]))
+        
+        flag = 0
+        if (ws.lower() in websites_all) and (em.lower() in emails_all):
+            indices_of_website = [i for i, x in enumerate(websites_all) if x == ws]
+            for ind in indices_of_website:
+                if(emails_all[ind] == em.lower()):
+                    flag = 1
+                    websites_all.pop(ind)
+                    emails_all.pop(ind)
+                    passwords_all.pop(ind)
+                    dec_record = ''
+                    dec_record = websites_all[0] + '||' + emails_all[0] + '||' + passwords_all[0]
+                    for i in range(1, len(websites_all)):
+                        dec_record = dec_record + '|||' + websites_all[i] + '||' + emails_all[i] + '||' + passwords_all[i]
+                    Label(screen6, text = "Password Deleted Successfully", fg = "green", font = ("calibri", 11)).pack()
+                    break
+
+        if(flag==0):
+            Label(screen6, text = "Website-User ID Pair does not Exist", fg = "red", font = ("calibri", 11)).pack()
+
+        nonce, ciphertext, tag = encrypt(dec_record, vault_key)
+        store_record(usr3, ciphertext, nonce, tag) 
 
 def main_screen():
     global screen
@@ -402,6 +565,8 @@ def main_screen():
     Button(text = "Add Passwords", height = "2", width = "40", command = confirm_password_add).pack()
     Label(text = "").pack()
     Button(text = "Generate Passwords", height = "2", width = "40", command = confirm_password_gen).pack()
+    Label(text = "").pack()
+    Button(text = "Delete Passwords", height = "2", width = "40", command = confirm_password_del).pack()
 
     screen.mainloop()
 
