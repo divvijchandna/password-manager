@@ -128,95 +128,97 @@ def retrieve_vault_salt(username):
     return result[0]["salt_vault"]
 
 
-# print("1.Add Account: a \n2.Check if Master-Password is Correct: c \n3.Add password to Account: ap \n4.View all website-password pairs: v")
-# print()
-# option = input('Enter your selection: ')
+print("1.Add Account: a \n2.Check if Master-Password is Correct: c \n3.Add password to Account: ap \n4.View all website-password pairs: v")
+print()
+option = input('Enter your selection: ')
 
-# if option == 'a':
+if option == 'a':
 
-#     username = input("Username: ")
-#     password = getpass()
-#     salt1 = os.urandom(32) # Remember this
-#     salt2 = os.urandom(32) # Remember this
+    username = input("Username: ")
+    password = getpass()
+    salt1 = os.urandom(32) # Remember this
+    salt2 = os.urandom(32) # Remember this
 
-#     vault_key_wsalt = get_vault_key(password, salt1, username)
-#     salt = vault_key_wsalt[:32] # 32 is the length of the salt
-#     vault_key = vault_key_wsalt[32:]
-#     auth_hash_wsalt = get_auth_hash(vault_key, salt2, password)
+    vault_key_wsalt = get_vault_key(password, salt1, username)
+    salt = vault_key_wsalt[:32] # 32 is the length of the salt
+    vault_key = vault_key_wsalt[32:]
+    auth_hash_wsalt = get_auth_hash(vault_key, salt2, password)
 
-#     store_auth_hash(username, auth_hash_wsalt, salt1)
-#     print('Done')
+    store_auth_hash(username, auth_hash_wsalt, salt1)
+    print('Done')
 
-# elif option == 'c':
+elif option == 'c':
 
-#     username = input("Username: ")
-#     password = getpass()
+    username = input("Username: ")
+    password = getpass()
 
-#     auth_hash_wsalt = retrieve_auth_hash(username)
+    auth_hash_wsalt = retrieve_auth_hash(username)
 
-#     check = check_auth_hash(password, username, auth_hash_wsalt)
-#     if check:
-#         print('Password is correct')
-#     else:
-#         print('Password is incorrect')
+    check = check_auth_hash(password, username, auth_hash_wsalt)
+    if check:
+        print('Password is correct')
+    else:
+        print('Password is incorrect')
 
 
-# elif option == 'ap':
+elif option == 'ap':
 
-#     username = input("Username: ")
-#     password = getpass()
+    username = input("Username: ")
+    password = getpass()
 
-#     auth_hash_wsalt = retrieve_auth_hash(username)
+    auth_hash_wsalt = retrieve_auth_hash(username)
 
-#     check = check_auth_hash(password, username, auth_hash_wsalt)
+    check = check_auth_hash(password, username, auth_hash_wsalt)
 
-#     # salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
-#     # key_from_storage = auth_hash_wsalt[32:]
+    # salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
+    # key_from_storage = auth_hash_wsalt[32:]
 
-#     if not check:
-#         print('Password is incorrect. Try again.')
-#     else:
-#         # vault_key_wsalt = get_vault_key(password, username)
-#         record, nonce, tag = retrieve_record(username)
-#         website = str(input("Website name: "))
-#         password_length = int(input("Password length: "))
-#         password_record = str(make_password(password_length))
+    if not check:
+        print('Password is incorrect. Try again.')
+    else:
+        # vault_key_wsalt = get_vault_key(password, username)
+        record, nonce, tag = retrieve_record(username)
+        website = str(input("Website name: "))
+        password_length = int(input("Password length: "))
+        password_record = str(make_password(password_length))
 
-#         vault_salt = retrieve_vault_salt(username)
-#         vault_key_wsalt = get_vault_key(password, vault_salt, username)
-#         vault_key = vault_key_wsalt[32:]
+        email_user = str(input("Enter email used for website login: "))
 
-#         if(record == 'Empty'):
-#             nonce, ciphertext, tag = encrypt(website+'||'+password_record, vault_key)
-#             store_record(username, ciphertext, nonce, tag)
-#         else:
-#             dec_record = decrypt(vault_key, nonce, tag, record)
-#             dec_record = dec_record + '|||' + website+'||'+password_record
-#             nonce, ciphertext, tag = encrypt(dec_record, vault_key)
-#             store_record(username, ciphertext, nonce, tag) 
+        vault_salt = retrieve_vault_salt(username)
+        vault_key_wsalt = get_vault_key(password, vault_salt, username)
+        vault_key = vault_key_wsalt[32:]
 
-# elif option == 'v':
+        if(record == 'Empty'):
+            nonce, ciphertext, tag = encrypt(website+'||'+email_user+'||'+password_record, vault_key)
+            store_record(username, ciphertext, nonce, tag)
+        else:
+            dec_record = decrypt(vault_key, nonce, tag, record)
+            dec_record = dec_record + '|||'+ website+'||'+email_user+'||'+password_record
+            nonce, ciphertext, tag = encrypt(dec_record, vault_key)
+            store_record(username, ciphertext, nonce, tag) 
 
-#     username = input("Username: ")
-#     password = getpass()
+elif option == 'v':
 
-#     auth_hash_wsalt = retrieve_auth_hash(username)
+    username = input("Username: ")
+    password = getpass()
 
-#     check = check_auth_hash(password, username, auth_hash_wsalt)
+    auth_hash_wsalt = retrieve_auth_hash(username)
 
-#     # salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
-#     # key_from_storage = auth_hash_wsalt[32:]
+    check = check_auth_hash(password, username, auth_hash_wsalt)
 
-#     if not check:
-#         print('Password is incorrect. Try again.')
-#     else:
-#         # vault_key_wsalt = get_vault_key(password, username)
-#         record, nonce, tag = retrieve_record(username)
-#         salt_vault = retrieve_vault_salt(username)
-#         vault_key_wsalt = get_vault_key(password, salt_vault, username)
-#         vault_key = vault_key_wsalt[32:]
-#         if(record == 'Empty'):
-#             print(record)
-#         else:
-#             dec_record = decrypt(vault_key, nonce, tag, record)
-#             print(dec_record)
+    # salt_from_storage = auth_hash_wsalt[:32] # 32 is the length of the salt
+    # key_from_storage = auth_hash_wsalt[32:]
+
+    if not check:
+        print('Password is incorrect. Try again.')
+    else:
+        # vault_key_wsalt = get_vault_key(password, username)
+        record, nonce, tag = retrieve_record(username)
+        salt_vault = retrieve_vault_salt(username)
+        vault_key_wsalt = get_vault_key(password, salt_vault, username)
+        vault_key = vault_key_wsalt[32:]
+        if(record == 'Empty'):
+            print(record)
+        else:
+            dec_record = decrypt(vault_key, nonce, tag, record)
+            print(dec_record)
