@@ -93,10 +93,41 @@ def view_passwords():
         screen3.geometry("500x400")
 
         if(record == 'Empty'):
-            Label(screen3, text = record).pack()
+            Label(screen3, text = 'No Passwords').pack()
         else:
             dec_record = decrypt(vault_key, nonce, tag, record)
-            Label(screen3, text = dec_record).pack()
+            password_array = []
+            password_array = dec_record.split('|||')
+            for i in range(len(password_array)):
+                password_array[i] = password_array[i].split('||')
+
+        total_rows = len(password_array)
+        total_columns = len(password_array[0])
+
+        e = Entry(screen3, width=15,
+                               font=('Calibri',12, 'bold'))
+                  
+        e.grid(row=0, column=0, padx=(115, 10), pady=(30, 10))
+        e.insert(END, 'Website')
+
+        e = Entry(screen3, width=15,
+                               font=('Calibri',12, 'bold'))
+                  
+        e.grid(row=0, column=1, pady=(30, 10))
+        e.insert(END, 'Password')
+
+        for i in range(total_rows):
+            for j in range(total_columns):
+                  
+                e = Entry(screen3, width=15,
+                               font=('Calibri',12))
+                
+                if j == 0:
+                    e.grid(row=i+1, column=j, padx=(115, 10))
+                else:
+                    e.grid(row=i+1, column=j)
+                e.insert(END, password_array[i][j])
+        
 
 def confirm_password_add():
     global screen2
